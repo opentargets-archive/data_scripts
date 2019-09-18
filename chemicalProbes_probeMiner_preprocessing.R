@@ -31,25 +31,25 @@ library("tibble")
 ensembl <- useMart('ensembl', dataset="hsapiens_gene_ensembl")
 target_id_table <- getBM(attributes = c("hgnc_symbol", "uniprot_gn_id"),mart=ensembl)
 
-
 # *** Load and process the Probe Miner data ***
 # Need to add comment.char="" because the smile strings can contain '#' 
 probe_miner_dump_df <- read.table(file= probe_miner_dump, header=TRUE, sep="\t", stringsAsFactors=FALSE, comment.char="")
+
 # Pull out target and probe IDs with target_potency_raw > 5 to generate a 'count table'
-D2<-D[D[,15]>5,1:2] # Get number of unique targets and probes: length(unique(D2[,2])) & length(unique(D2[,1]))
+probe_miner_dump_df %>% filter(target_potency_raw > 5) %>% select(UNIPROT_ACCESSION, COMPOUND_ID)
+
 # Generate the 'count/frequency table'
-D3<-table(D2[,1])
-# Map provided UniProt IDs to HGNC symbols in D4
-D4 <- cbind(cbind(names(D3), D3), rep("", times=length(D3)))
-colnames(D4)<-c("uniprot_symbol", "nr_of_probes", "hgnc_symbol")
-for (i in 1:nrow(D4)){
-	D4[i,3] <- ID[match(D4[i,1], ID[,2]),1]
-}
+probe_count_per_target <- probe_miner_dump_df %>% group_by(UNIPROT_ACCESSION) %>% summarise(probes_per_target=n())
+
+# Map provided UniProt IDs to HGNC symbols
+probe_count_per_target_with_hgnc <- left_join(probe_count_per_target, target_id_table, by = c("UNIPROT_ACCESSION" = "uniprot_gn_id"))
 
 # Get the unmapped IDs
-tmp<-D4[is.na(D4[,3]),]
+targets_no_hgnc <- probe_count_per_target_with_hgnc %>% filter(is.na(hgnc_symbol))
+
 # Export unmapped IDs and process CSV file in Google sheet 'ProbeMiner - ID Mapping'
-write.csv(tmp, file="ProbeMiner_manualMapping_2.csv")
+write.csv(targets_no_hgnc, file="ProbeMiner_targets_no_hgnc.csv")
+
 # Get all targets that have been mapped
 pm_1810<-D4[!is.na(D4[,3]),]  
 # Read in targets with manually curated hgnc symbols 
