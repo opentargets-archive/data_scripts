@@ -27,25 +27,26 @@ library("dplyr")
 library("tidyr")
 library("tibble")
 
-# *** Get a map of uni_prot - hgnc_symbol via biomaRt ***
-ensembl <- useMart('ensembl', dataset="hsapiens_gene_ensembl")
-target_id_table <- getBM(attributes = c("hgnc_symbol", "uniprot_gn_id"),mart=ensembl)
+# *** UniProt - HGNC map from Open Targets target file ***
+target_id_table <- read.csv(file.path("/Users","gonzaleza","opentargets", "19.06", "OT1906_target_list.csv"), header = F, stringsAsFactors = F)
+colnames(target_id_table) <- c("ensembl_id","approved_symbol", "uniprot_accessions", "association_counts")
+target_id_table <- target_id_table %>% select(approved_symbol, uniprot_accessions) %>% unnest(uniprot_accessions=strsplit(uniprot_accessions, "|", fixed=T))
 
 # *** Load and process the Probe Miner data ***
 # Need to add comment.char="" because the smile strings can contain '#' 
 probe_miner_dump_df <- read.table(file= probe_miner_dump, header=TRUE, sep="\t", stringsAsFactors=FALSE, comment.char="")
 
 # Pull out target and probe IDs with target_potency_raw > 5 to generate a 'count table'
-probe_miner_dump_df %>% filter(target_potency_raw > 5) %>% select(UNIPROT_ACCESSION, COMPOUND_ID)
+probe_miner_dump_df <- probe_miner_dump_df %>% filter(target_potency_raw > 5) %>% select(UNIPROT_ACCESSION, COMPOUND_ID)
 
 # Generate the 'count/frequency table'
 probe_count_per_target <- probe_miner_dump_df %>% group_by(UNIPROT_ACCESSION) %>% summarise(probes_per_target=n())
 
 # Map provided UniProt IDs to HGNC symbols
-probe_count_per_target_with_hgnc <- left_join(probe_count_per_target, target_id_table, by = c("UNIPROT_ACCESSION" = "uniprot_gn_id"))
+probe_count_per_target_with_hgnc <- left_join(probe_count_per_target, target_id_table, by = c("UNIPROT_ACCESSION" = "uniprot_accessions"))
 
 # Get the unmapped IDs
-targets_no_hgnc <- probe_count_per_target_with_hgnc %>% filter(is.na(hgnc_symbol))
+targets_no_hgnc <- probe_count_per_target_with_hgnc %>% filter(is.na(approved_symbol))
 
 # Export unmapped IDs and process CSV file in Google sheet 'ProbeMiner - ID Mapping'
 write.csv(targets_no_hgnc, file="ProbeMiner_targets_no_hgnc.csv")
