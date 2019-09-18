@@ -10,7 +10,7 @@ __license__   = "Apache 2.0"
 __version__   = "1.2.8"
 __maintainer__= "Asier Gonzalez"
 __email__     = ["data@opentargets.org"]
-__status__    = "Production"
+__status__    = "Prototype"
 
 def connect_elasticsearch():
     _es = Elasticsearch([{'host': 'localhost', 'port': 9200}])
