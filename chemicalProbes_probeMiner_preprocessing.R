@@ -22,7 +22,6 @@ setwd(working_dir)
 # Specify input file
 probe_miner_dump <- "probeminer_datadump_2019-07-01.txt"
 
-library('biomaRt')
 library("dplyr")
 library("tidyr")
 library("tibble")
