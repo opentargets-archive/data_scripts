@@ -15,7 +15,12 @@
 ##
 #################################################
 
-### --- Probe Miner data dump pre-processing ---
+# Work on directory with input file
+working_dir <- file.path("/Users","gonzaleza","opentargets", "19.09")
+setwd(working_dir)
+
+# Specify input file
+probe_miner_dump <- "probeminer_datadump_2018-09-19.txt"
 
 # *** Get a map of uni_prot - hgnc_symbol via biomaRt ***
 library('biomaRt')
@@ -26,7 +31,7 @@ ID <- getBM(attributes = c("hgnc_symbol", "uniprot_gn"),mart=ensembl)
 # *** Load and process the Probe Miner data ***
 #D<-read.table(file="probeminer_datadump_2018-05-01.txt", header=TRUE, sep="\t", stringsAsFactors=FALSE)
 # Need to add comment.char="" because the smile strings can contain '#' 
-D<-read.table(file="probeminer_datadump_2018-09-19.txt", header=TRUE, sep="\t", stringsAsFactors=FALSE, comment.char="")
+D<-read.table(file= probe_miner_dump, header=TRUE, sep="\t", stringsAsFactors=FALSE, comment.char="")
 # Pull out target and probe IDs with target_potency_raw > 5 to generate a 'count table'
 D2<-D[D[,15]>5,1:2] # Get number of unique targets and probes: length(unique(D2[,2])) & length(unique(D2[,1]))
 # Generate the 'count/frequency table'
