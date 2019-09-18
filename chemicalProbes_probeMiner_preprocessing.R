@@ -20,7 +20,7 @@ working_dir <- file.path("/Users","gonzaleza","opentargets", "19.09")
 setwd(working_dir)
 
 # Specify input file
-probe_miner_dump <- "probeminer_datadump_2018-09-19.txt"
+probe_miner_dump <- "probeminer_datadump_2019-07-01.txt"
 
 library('biomaRt')
 library("dplyr")
@@ -34,7 +34,7 @@ target_id_table <- getBM(attributes = c("hgnc_symbol", "uniprot_gn_id"),mart=ens
 
 # *** Load and process the Probe Miner data ***
 # Need to add comment.char="" because the smile strings can contain '#' 
-probe_miner_dump_df < -read.table(file= probe_miner_dump, header=TRUE, sep="\t", stringsAsFactors=FALSE, comment.char="")
+probe_miner_dump_df <- read.table(file= probe_miner_dump, header=TRUE, sep="\t", stringsAsFactors=FALSE, comment.char="")
 # Pull out target and probe IDs with target_potency_raw > 5 to generate a 'count table'
 D2<-D[D[,15]>5,1:2] # Get number of unique targets and probes: length(unique(D2[,2])) & length(unique(D2[,1]))
 # Generate the 'count/frequency table'
