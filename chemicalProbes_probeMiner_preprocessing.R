@@ -1,3 +1,20 @@
+#################################################
+## 
+## Purpose of script: Parse Probe Miner data dump to be used as target annotation in Open Targets
+## Description: Process Probe Miner data dump and generate a tsv file with three columns:
+##              HGNC symbol, Uniprot accession and Nr of probes 
+##
+## Authors: Michaela Spitzer, Asier Gonzalez
+## Maintainer: Asier Gonzalez
+## Email: "data@opentargets.org
+##
+## Date Created: Oct 2018
+##
+## Copyright: Copyright 2014-2019, Open Targets
+## License: Apache 2.0
+##
+#################################################
+
 ### --- Probe Miner data dump pre-processing ---
 
 # *** Get a map of uni_prot - hgnc_symbol via biomaRt ***
