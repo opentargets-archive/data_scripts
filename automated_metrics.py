@@ -3,6 +3,15 @@ import json
 import pandas as pd
 from elasticsearch import Elasticsearch
 
+__copyright__ = "Copyright 2014-2019, Open Targets"
+__author__ = "Michaela Spitzer, Asier Gonzalez"
+__credits__   = ["Michaela Spitzer", "Asier Gonzalez"]
+__license__   = "Apache 2.0"
+__version__   = "1.2.8"
+__maintainer__= "Asier Gonzalez"
+__email__     = ["data@opentargets.org"]
+__status__    = "Production"
+
 def connect_elasticsearch():
     _es = Elasticsearch([{'host': 'localhost', 'port': 9200}])
     if _es.ping():
