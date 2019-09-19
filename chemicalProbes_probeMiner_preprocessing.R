@@ -51,7 +51,7 @@ targets_no_hgnc <- probe_count_per_target_with_hgnc %>% filter(is.na(approved_sy
 write.csv(targets_no_hgnc, file="ProbeMiner_targets_no_hgnc.csv")
 
 # Get all targets that have been mapped
-pm_1810<-D4[!is.na(D4[,3]),]  
+targets_with_hgnc <- probe_count_per_target_with_hgnc %>% filter(!is.na(approved_symbol))
 # Read in targets with manually curated hgnc symbols 
 pm_manual<-as.matrix(read.csv(file="ProbeMiner - ID Mapping - Final Mapping Oct 2018.csv", 
 	header=TRUE, stringsAsFactors=FALSE))
