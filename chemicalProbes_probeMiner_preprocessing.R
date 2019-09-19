@@ -52,11 +52,7 @@ write.csv(targets_no_hgnc, file="ProbeMiner_targets_no_hgnc.csv")
 
 # Get all targets that have been mapped
 targets_with_hgnc <- probe_count_per_target_with_hgnc %>% filter(!is.na(approved_symbol))
-# Read in targets with manually curated hgnc symbols 
-pm_manual<-as.matrix(read.csv(file="ProbeMiner - ID Mapping - Final Mapping Oct 2018.csv", 
-	header=TRUE, stringsAsFactors=FALSE))
-# Combine both sets of targets
-pm_1810_2<-rbind(pm_1810, pm_manual)
+
 # Save table with hgnc_symbol, uniprot_symbol, nr_of_probes for the OT pipeline
 write.table(pm_1810_2[,c(3,1,2)], file="chemicalprobes_probeminer_20181015.tsv", sep="\t", row.names=FALSE, quote=FALSE) 
 
