@@ -48,14 +48,13 @@ probe_count_per_target_with_hgnc <- left_join(probe_count_per_target, target_id_
 targets_no_hgnc <- probe_count_per_target_with_hgnc %>% filter(is.na(approved_symbol))
 
 # Export unmapped IDs and process CSV file in Google sheet 'ProbeMiner - ID Mapping'
-write.csv(targets_no_hgnc, file="ProbeMiner_targets_no_hgnc.csv")
+write.csv(targets_no_hgnc, file="ProbeMiner_01_07_2019_targets_no_hgnc.csv")
 
 # Get all targets that have been mapped
 targets_with_hgnc <- probe_count_per_target_with_hgnc %>% filter(!is.na(approved_symbol))
 
 # Save table with hgnc_symbol, uniprot_symbol, nr_of_probes for the OT pipeline
-write.table(pm_1810_2[,c(3,1,2)], file="chemicalprobes_probeminer_20181015.tsv", sep="\t", row.names=FALSE, quote=FALSE) 
-
+write.table(targets_with_hgnc %>% select(approved_symbol, UNIPROT_ACCESSION, probes_per_target), file="chemicalprobes_probeminer-01-07-2019.tsv", sep="\t", row.names=FALSE, col.names = c("hgnc_symbol", "uniprot_symbol", "nr_of_probes"), quote=FALSE) 
 ### --- End of Probe Miner data dump preprocessing ---
 
 
