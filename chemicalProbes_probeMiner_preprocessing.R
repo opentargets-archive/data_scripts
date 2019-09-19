@@ -27,7 +27,7 @@ library("tidyr")
 library("tibble")
 
 # *** UniProt - HGNC map from Open Targets target file ***
-target_id_table <- read.csv(file.path("/Users","gonzaleza","opentargets", "19.06", "OT1906_target_list.csv"), header = F, stringsAsFactors = F)
+target_id_table <- read.csv("19.09_target_list.csv", header = F, stringsAsFactors = F)
 colnames(target_id_table) <- c("ensembl_id","approved_symbol", "uniprot_accessions", "association_counts")
 target_id_table <- target_id_table %>% select(approved_symbol, uniprot_accessions) %>% unnest(uniprot_accessions=strsplit(uniprot_accessions, "|", fixed=T))
 
