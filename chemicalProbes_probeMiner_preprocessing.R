@@ -48,7 +48,7 @@ probe_count_per_target_with_hgnc <- left_join(probe_count_per_target, target_id_
 targets_no_hgnc <- probe_count_per_target_with_hgnc %>% filter(is.na(approved_symbol))
 
 # Export unmapped IDs and process CSV file in Google sheet 'ProbeMiner - ID Mapping'
-write.csv(targets_no_hgnc, file="ProbeMiner_01_07_2019_targets_no_hgnc.csv")
+write.csv(targets_no_hgnc, file="ProbeMiner_01_07_2019_targets_no_hgnc.csv", row.names=FALSE)
 
 # Get all targets that have been mapped
 targets_with_hgnc <- probe_count_per_target_with_hgnc %>% filter(!is.na(approved_symbol))
