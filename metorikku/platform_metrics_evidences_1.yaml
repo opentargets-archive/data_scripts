@@ -1,0 +1,21 @@
+steps:
+  - dataFrameName: counts
+    # drugs is a ETL process in order to get per chembl_id a list of drug names and target ids
+    # this df is the base for further extractions
+    sql:
+      SELECT
+        substring_index(substring_index(input_file_name(), '/', -1),'_', 1) as release,
+        `type` as data_type,
+        sourceID as data_source,
+        count(id) as num_evs,
+        sum(case when scores.association_score = 0.0 then 1 else 0 end) as num_evs_0,
+        count(DISTINCT target.id) as unique_targets,
+        count(DISTINCT disease.id) as unique_diseases
+      FROM evidences
+      GROUP BY input_file_name(), `type`, sourceID
+output:
+  - dataFrameName: counts
+    outputType: JSON
+    outputOptions:
+      saveMode: Overwrite
+      path: "evidences_1.json"

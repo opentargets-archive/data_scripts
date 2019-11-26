@@ -1,0 +1,18 @@
+metrics:
+  - platform_metrics_evidences_1.yaml
+  - platform_metrics_associations_1.yaml
+  - platform_metrics_associations_2.yaml
+inputs:
+  evidences:
+    file:
+      path: inputs/evidences/
+      format: JSON
+  associations:
+    file:
+      path: inputs/associations/
+      format: JSON
+output:
+  file:
+    dir: "outputs"
+logLevel: WARN
+appName: platformMetrics

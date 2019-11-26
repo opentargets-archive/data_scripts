@@ -1,0 +1,44 @@
+steps:
+  - dataFrameName: aggregated_pairs
+    sql:
+      SELECT
+        release,
+        target_id,
+        disease_id,
+        collect_set(td_ds_counts) as data_source_list
+      FROM (
+        SELECT
+          target.id as target_id,
+          disease.id as disease_id,
+          substring_index(substring_index(input_file_name(), '/', -1),'_', 1) as release,
+          named_struct('name', sourceID, 'value', count(id)) as td_ds_counts
+        FROM evidences
+        GROUP BY release, target.id, disease.id, sourceID
+      )
+      GROUP BY release, target_id, disease_id
+  - dataFrameName: associations_post
+    # drugs is a ETL process in order to get per chembl_id a list of drug names and target ids
+    # this df is the base for further extractions
+    sql:
+      SELECT
+        a.*,
+        p.data_source_list as data_source_list
+      FROM (SELECT *, target.id as target_id, disease.id as disease_id, substring_index(substring_index(input_file_name(), '/', -1),'_',1) as release FROM associations) a
+      LEFT OUTER JOIN aggregated_pairs p ON a.release = p.release and a.target_id = p.target_id and a.disease_id = p.disease_id
+  - dataFrameName: associations_agg_is_direct
+    sql:
+      SELECT
+        release,
+        data_source,
+        count(DISTINCT target_id) as unique_target_count,
+        count(DISTINCT disease_id) as unique_disease_count,
+        count(id) as association_count
+      FROM (select *, explode(transform(data_source_list, x -> x.name )) as data_source from associations_post)
+      GROUP BY release, data_source
+      WHERE is_direct = true
+output:
+  - dataFrameName: associations_agg
+    outputType: JSON
+    outputOptions:
+      saveMode: Overwrite
+      path: "associations_2.json"
