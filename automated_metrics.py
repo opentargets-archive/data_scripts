@@ -25,16 +25,38 @@ es = connect_elasticsearch()
 if es is not None:
     # Get nr of valid evidence strings
     query_nr_evidence_strings = {"query": { "match_all": {} }, "aggs": {"evidence_string_numbers": {"terms": {"field": "private.datasource.keyword","size": 20 }}}, "size": 0}
-    valid_evidence = es.search('19.09_evidence-data', json.dumps(query_nr_evidence_strings))
+    valid_evidence = es.search('20.02_evidence-data', json.dumps(query_nr_evidence_strings))
     # Get number of invalid evidence strings
     query_nr_inv_evidence_strings = {"query": { "match_all": {} }, "aggs": {"evidence_string_numbers": {"terms": {"field": "data_source.keyword","size": 20 }}}, "size": 0}
-    invalid_evidence = es.search('19.09_invalid-evidence-data', json.dumps(query_nr_inv_evidence_strings))
+    invalid_evidence = es.search('20.02_invalid-evidence-data', json.dumps(query_nr_inv_evidence_strings))
     # Get nr of evidence strings with score == 0
     query_nr_evidence_strings_score0 = {"query": {"match": {"scores.association_score": 0}},"aggs": {"evidence_string_numbers": {"terms": {"field": "private.datasource.keyword","size": 20}}}, "size": 0}
-    score0_evidence = es.search('19.09_evidence-data', json.dumps(query_nr_evidence_strings_score0))
+    score0_evidence = es.search('20.02_evidence-data', json.dumps(query_nr_evidence_strings_score0))
     # Get nr of associations data sources contribute to
-    query_associations = {"query": {"match_all": {}},"size": 0,"aggs": {"counts": {"terms": {"field": "private.facets.datasource.keyword","size": 100},"aggs": {"uniq_targets": {"cardinality": {"field": "target.gene_info.geneid.keyword"}},"uniq_diseases": {"cardinality": {"field": "disease.efo_info.efo_id.keyword"}}}},"uniq_targets": {"cardinality": {"field": "target.gene_info.geneid.keyword"}},"uniq_diseases": {"cardinality": {"field": "disease.efo_info.efo_id.keyword"}},"counts_direct": {"aggs": {"counts": {"terms": {"field": "private.facets.datasource.keyword","size": 100},"aggs": {"uniq_targets": {"cardinality": {"field": "target.gene_info.geneid.keyword"}},"uniq_diseases": {"cardinality": {"field": "disease.efo_info.efo_id.keyword"}}}},"uniq_targets": {"cardinality": {"field": "target.gene_info.geneid.keyword"}},"uniq_diseases": {"cardinality": {"field": "disease.efo_info.efo_id.keyword"}}},"filter": {"term": {"is_direct": "true"}}},"direct_counts_td": {"filter": {"term": {"is_direct": "true"}},"aggs": {"uniq_targets": {"cardinality": {"field": "target.gene_info.geneid.keyword"}},"uniq_diseases": {"cardinality": {"field": "disease.efo_info.efo_id.keyword"}}}}}}
-    counts_associations = es.search('19.09_association-data', json.dumps(query_associations), request_timeout=30)
+    query_associations = {"query": {"match_all": {}},"size": 0,
+                          "aggs": {
+                              "counts": {
+                                  "terms": {"field": "private.facets.datasource.keyword","size": 100},
+                                  "aggs": {
+                                      "uniq_targets": {"cardinality": {"field": "target.gene_info.geneid.keyword"}},
+                                      "uniq_diseases": {"cardinality": {"field": "disease.efo_info.efo_id.keyword"}}}},
+                              "uniq_targets": {"cardinality": {"field": "target.gene_info.geneid.keyword"}},
+                              "uniq_diseases": {"cardinality": {"field": "disease.efo_info.efo_id.keyword"}},
+                              "counts_direct": {
+                                  "aggs": {
+                                      "counts": {"terms": {"field": "private.facets.datasource.keyword","size": 100},
+                                                 "aggs": {
+                                                     "uniq_targets": {"cardinality": {"field": "target.gene_info.geneid.keyword"}},
+                                                     "uniq_diseases": {"cardinality": {"field": "disease.efo_info.efo_id.keyword"}}}},
+                                      "uniq_targets": {"cardinality": {"field": "target.gene_info.geneid.keyword"}},
+                                      "uniq_diseases": {"cardinality": {"field": "disease.efo_info.efo_id.keyword"}}},
+                                  "filter": {"term": {"is_direct": "true"}}},
+                              "direct_counts_td": {"filter": {"term": {"is_direct": "true"}},
+                                                   "aggs": {
+                                                       "uniq_targets": {"cardinality": {"field": "target.gene_info.geneid.keyword"}},
+                                                       "uniq_diseases": {"cardinality": {"field": "disease.efo_info.efo_id.keyword"}}}}}}
+
+    counts_associations = es.search('20.02_association-data', json.dumps(query_associations), request_timeout=30)
 
 # Create a dictionary for all 20 datasources
 datasources = {'cancer_gene_census':{},
