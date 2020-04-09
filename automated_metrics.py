@@ -135,14 +135,14 @@ def main():
     # Parse CLI parameters
     parser = argparse.ArgumentParser(description='Script that extracts metrics from elasticsearch server.')
     parser.add_argument('--esPrefix', help='Prefix of ES indices, e.g. 20.04', type=str, required=True)
-    parser.add_argument('-o','--outputFile', help='Name of the output file', type=str, default='ot_metrics.tab')
+    parser.add_argument('-o','--outputFile', help='Name of the output file, [esPrefix]_ot_metrics.tab by default', type=str, default='ot_metrics.tab')
     parser.add_argument('--host', help='Name or IP address of the ES server, "localhost" by default', type=str, default='localhost')
     parser.add_argument('--port', help='Port number where ES is listening, 9200 by default', type=int, default=9200)
     args = parser.parse_args()
 
     # Parse input parameters
     es_prefix = args.esPrefix
-    outfile = args.outputFile
+    outfile = es_prefix + "_" + args.outputFile
     host = args.host
     port = args.port
 
