@@ -69,26 +69,27 @@ def es_search(es,prefix, index, query):
 
 def process_es_response(valid_evidence, invalid_evidence, score0_evidence, counts_associations, outfile):
     # Create a dictionary for all 20 datasources
-    datasources = {'cancer_gene_census':{},
+    datasources = {'genomics_england':{},
+                   'ot_genetics_portal': {},
+                   'gene2phenotype': {},
+                   'phewas_catalog': {},
+                   'uniprot': {},
+                   'uniprot_literature': {},
+                   'uniprot_somatic': {},
+                   'eva': {},
+                   'eva_somatic': {},
+                   'cancer_gene_census':{},
+                   'intogen': {},
                    'chembl':{},
+                   'reactome': {},
+                   'slapenrich': {},
+                   'progeny': {},
+                   'sysbio': {},
                    'crispr':{},
-                   'europepmc':{},
-                   'eva':{},
-                   'eva_somatic':{},
-                   'expression_atlas':{},
-                   'gene2phenotype':{},
-                   'genomics_england':{},
-                   'ot_genetics_portal':{},
-                   'intogen':{},
-                   'phenodigm':{},
-                   'phewas_catalog':{},
-                   'progeny':{},
-                   'reactome':{},
-                   'slapenrich':{},
-                   'sysbio':{},
-                   'uniprot':{},
-                   'uniprot_literature':{},
-                   'uniprot_somatic':{}}
+                   'expression_atlas': {},
+                   'phenodigm': {},
+                   'europepmc':{}
+                   }
 
     # Create fields for all 8 parameters of interest
     for key in datasources:
