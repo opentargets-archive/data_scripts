@@ -97,10 +97,10 @@ def process_es_response(valid_evidence, invalid_evidence, score0_evidence, count
             'valid_evidence_strings': 0,
             'invalid_evidence_strings': 0,
             'score_is_0': 0,
-            'associations_direct': 0,
-            'diseases_direct': 0,
-            'targets_direct': 0,
             'associations_all': 0,
+            'associations_direct': 0,
+            'targets_direct': 0,
+            'diseases_direct': 0,
             'diseases_all': 0
         }
     # Retrieve the numbers from each of the 4 ES queries
