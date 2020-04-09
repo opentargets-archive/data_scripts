@@ -128,14 +128,14 @@ def process_es_response(valid_evidence, invalid_evidence, score0_evidence, count
         myrow=myrow+1
 
     df.insert(0, "datasource", datasources.keys(), True)
-    df.to_csv(outfile, index=False)
+    df.to_csv(outfile, index=False, sep='\t')
 
 def main():
 
     # Parse CLI parameters
     parser = argparse.ArgumentParser(description='Script that extracts metrics from elasticsearch server.')
     parser.add_argument('--esPrefix', help='Prefix of ES indices, e.g. 20.04', type=str, required=True)
-    parser.add_argument('-o','--outputFile', help='Name of the output file', type=str, default='ot_metrics.csv')
+    parser.add_argument('-o','--outputFile', help='Name of the output file', type=str, default='ot_metrics.tab')
     parser.add_argument('--host', help='Name or IP address of the ES server, "localhost" by default', type=str, default='localhost')
     parser.add_argument('--port', help='Port number where ES is listening, 9200 by default', type=int, default=9200)
     args = parser.parse_args()
