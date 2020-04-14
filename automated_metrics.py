@@ -63,6 +63,17 @@ def build_nr_assocs_per_datasource_query():
 
     return query_associations
 
+def es_cat_indices(es, outfile):
+    """ Retrieve index size information from elasticearch - same as running  GET /_cat/indices/*?v&h=index,docs.count,store.size,pri.store.size"""
+    base_indices_metrics= es.cat.indices(h=["index", "docs.count", "store.size", "pri.store.size"],format="json")
+
+    # Parse response list and write to tsv
+    with open(outfile, "w") as index_metrics_file:
+        index_metrics_file.write("Index\tdocs.count\tstore.size\tpri.store.size\n")
+        for index_metrics in base_indices_metrics:
+            index_metrics_file.write("{}\t{}\t{}\t{}\n".format(index_metrics['index'], index_metrics['docs.count'], index_metrics['store.size'], index_metrics['pri.store.size']))
+
+
 def es_search(es,prefix, index, query):
     """ Query elasticsearch search endpoint """
     return es.search(prefix + index, json.dumps(query), request_timeout=30)
@@ -135,14 +146,16 @@ def main():
     # Parse CLI parameters
     parser = argparse.ArgumentParser(description='Script that extracts metrics from elasticsearch server.')
     parser.add_argument('--esPrefix', help='Prefix of ES indices, e.g. 20.04', type=str, required=True)
-    parser.add_argument('-o','--outputFile', help='Name of the output file, [esPrefix]_ot_metrics.tab by default', type=str, default='ot_metrics.tab')
+    parser.add_argument('--outDatasourceFile', help='Name of the file to store the metrics per data source, [esPrefix]_ot_metrics.tab by default', type=str, default='ot_metrics.tab')
+    parser.add_argument('--outIndexFile', help='Name of the file to store the metrics of the base indices, [esPrefix]_index_metrics.tab by default', type=str, default='index_metrics.tab')
     parser.add_argument('--host', help='Name or IP address of the ES server, "localhost" by default', type=str, default='localhost')
     parser.add_argument('--port', help='Port number where ES is listening, 9200 by default', type=int, default=9200)
     args = parser.parse_args()
 
     # Parse input parameters
     es_prefix = args.esPrefix
-    outfile = es_prefix + "_" + args.outputFile
+    outfile_datasource = es_prefix + "_" + args.outDatasourceFile
+    outfile_indices = es_prefix + "_" + args.outIndexFile
     host = args.host
     port = args.port
 
@@ -162,7 +175,9 @@ def main():
         query_associations_per_datasource = build_nr_assocs_per_datasource_query()
         counts_associations = es_search(es, es_prefix, "_association-data", query_associations_per_datasource)
 
-        process_es_response(valid_evidence, invalid_evidence, score0_evidence, counts_associations, outfile)
+        #process_es_response(valid_evidence, invalid_evidence, score0_evidence, counts_associations, outfile_datasource)
+
+        es_cat_indices(es, outfile_indices)
 
 
 
