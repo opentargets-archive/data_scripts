@@ -142,7 +142,7 @@ def es_search(es,prefix, index, query):
     """ Query elasticsearch search endpoint """
     return es.search(prefix + index, json.dumps(query), request_timeout=30)
 
-def process_es_response(valid_evidence, invalid_evidence, score0_evidence, counts_associations, outfile):
+def process_datasource_es_response(valid_evidence, invalid_evidence, score0_evidence, counts_associations, outfile):
     # Create a dictionary for all 20 datasources
     datasources = {'genomics_england':{},
                    'ot_genetics_portal': {},
@@ -249,7 +249,7 @@ def main():
         query_associations_per_datasource = build_nr_assocs_per_datasource_query()
         counts_associations = es_search(es, es_prefix, "_association-data", query_associations_per_datasource)
 
-        #process_es_response(valid_evidence, invalid_evidence, score0_evidence, counts_associations, outfile_datasource)
+        process_datasource_es_response(valid_evidence, invalid_evidence, score0_evidence, counts_associations, outfile_datasource)
 
         # Fetch index metrics
         es_cat_indices(es, outfile_indices)
@@ -258,10 +258,6 @@ def main():
         query_annotated_targets = build_nr_annotated_targets_gene_index_query()
         annotated_targets = es_search(es, es_prefix, "_gene-data", query_annotated_targets)
         process_annotated_targets_es_response(annotated_targets, outfile_annotated_targets)
-
-
-
-
 
 if __name__ == "__main__":
     main()
