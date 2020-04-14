@@ -63,6 +63,70 @@ def build_nr_assocs_per_datasource_query():
 
     return query_associations
 
+def build_nr_annotated_targets_gene_index_query():
+    """ Build query to get the number of targets in the gene index with various annotations"""
+    query_target_annotations = {"query": {"match_all":{}}, "size": 0,
+                                "aggs": {
+                                    "approved_symbol": {
+                                        "filter": {
+                                            "exists": {
+                                                "field": "approved_symbol"
+                                            }
+                                        }
+                                    },
+                                    "cancerbiomarkers":{
+                                        "filter": {
+                                            "exists": {
+                                                "field": "cancerbiomarkers"
+                                                }
+                                            }
+                                        },
+                                    "chemicalprobes.probeminer":{
+                                        "filter": {
+                                            "exists": {
+                                                "field": "chemicalprobes.probeminer"
+                                                }
+                                            }
+                                        },
+                                    "chemicalprobes.portalprobes":{
+                                        "filter": {
+                                            "exists": {
+                                                "field": "chemicalprobes.portalprobes"
+                                                }
+                                            }
+                                        },
+                                    "hallmarks":{
+                                        "filter": {
+                                            "exists": {
+                                                "field": "hallmarks"
+                                                }
+                                            }
+                                        },
+                                    "mouse_phenotypes.phenotypes":{
+                                        "filter": {
+                                            "exists": {
+                                                "field": "mouse_phenotypes.phenotypes"
+                                                }
+                                            }
+                                        },
+                                    "tractability":{
+                                        "filter": {
+                                            "exists": {
+                                                "field": "tractability"
+                                                }
+                                            }
+                                        },
+                                    "safety":{
+                                        "filter": {
+                                            "exists": {
+                                                "field": "safety"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+    return query_target_annotations
+
 def es_cat_indices(es, outfile):
     """ Retrieve index size information from elasticearch - same as running  GET /_cat/indices/*?v&h=index,docs.count,store.size,pri.store.size"""
     base_indices_metrics= es.cat.indices(h=["index", "docs.count", "store.size", "pri.store.size"],format="json")
@@ -141,6 +205,14 @@ def process_es_response(valid_evidence, invalid_evidence, score0_evidence, count
     df.insert(0, "datasource", datasources.keys(), True)
     df.to_csv(outfile, index=False, sep='\t')
 
+def process_annotated_targets_es_response(annotated_targets, outfile):
+
+    with open(outfile, "w") as annotated_targets_file:
+        annotated_targets_file.write("Annotation\tdoc_count\n")
+        for annotation, target_count in annotated_targets['aggregations'].items():
+            annotated_targets_file.write("{}\t{}\n".format(annotation, target_count['doc_count']))
+
+
 def main():
 
     # Parse CLI parameters
@@ -148,6 +220,7 @@ def main():
     parser.add_argument('--esPrefix', help='Prefix of ES indices, e.g. 20.04', type=str, required=True)
     parser.add_argument('--outDatasourceFile', help='Name of the file to store the metrics per data source, [esPrefix]_ot_metrics.tab by default', type=str, default='ot_metrics.tab')
     parser.add_argument('--outIndexFile', help='Name of the file to store the metrics of the base indices, [esPrefix]_index_metrics.tab by default', type=str, default='index_metrics.tab')
+    parser.add_argument('--outAnnotatedTargetsFile', help='Name of the file to store the number of targets with various annotations, [esPrefix]_annotated_targets_metrics.tab by default', type=str, default='annotated_targets_metrics.tab')
     parser.add_argument('--host', help='Name or IP address of the ES server, "localhost" by default', type=str, default='localhost')
     parser.add_argument('--port', help='Port number where ES is listening, 9200 by default', type=int, default=9200)
     args = parser.parse_args()
@@ -156,6 +229,7 @@ def main():
     es_prefix = args.esPrefix
     outfile_datasource = es_prefix + "_" + args.outDatasourceFile
     outfile_indices = es_prefix + "_" + args.outIndexFile
+    outfile_annotated_targets = es_prefix + "_" + args.outAnnotatedTargetsFile
     host = args.host
     port = args.port
 
@@ -177,7 +251,15 @@ def main():
 
         #process_es_response(valid_evidence, invalid_evidence, score0_evidence, counts_associations, outfile_datasource)
 
+        # Fetch index metrics
         es_cat_indices(es, outfile_indices)
+
+        # Fetch number of targets with various annotations in gene index
+        query_annotated_targets = build_nr_annotated_targets_gene_index_query()
+        annotated_targets = es_search(es, es_prefix, "_gene-data", query_annotated_targets)
+        process_annotated_targets_es_response(annotated_targets, outfile_annotated_targets)
+
+
 
 
 
