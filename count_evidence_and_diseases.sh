@@ -22,3 +22,15 @@ do
     echo "Downloading $datasource"
     gsutil cp $datasource .
 done
+
+# Delete GWAS file as it isn't used anymore
+rm -f gwas*
+
+# Iterate through all the files uncompress them, count the rows and the diseases
+for evidence_file in *.json.gz
+do
+    gunzip -c $evidence_file > $(evidence_file).json
+    wc -l $(evidence_file).json
+    jq  '.disease.id' $(evidence_file).json | sort -u | wc -l
+    rm $(evidence_file).json
+done
