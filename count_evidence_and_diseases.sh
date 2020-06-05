@@ -13,8 +13,8 @@ fi
 release_prefix=$1
 
 # Make dir named as the release and work in there
-mkdir -p $release_prefix
-cd $release_prefix
+mkdir -p $release_prefix/evidence_files
+cd $release_prefix/evidence_files
 
 # Download evidence files
 for datasource in $(gsutil ls gs://open-targets-data-releases/${release_prefix}/input/evidence-files/*gz)
