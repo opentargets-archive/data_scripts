@@ -31,6 +31,6 @@ for evidence_file in *.json.gz
 do
     gunzip -c $evidence_file > ${evidence_file}.json
     wc -l ${evidence_file}.json
-    jq-1.6 -r '[.sourceID, .disease.id] | @tsv' ${evidence_file}.json | sort -u | cut -f 1 | uniq -c
+    jq -r '[.sourceID, .disease.id] | @tsv' ${evidence_file}.json | sort -u | cut -f 1 | uniq -c
     rm ${evidence_file}.json
 done
