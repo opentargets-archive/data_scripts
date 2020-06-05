@@ -19,8 +19,8 @@ mkdir -p $release_prefix/evidence_files
 cd $release_prefix/evidence_files
 
 # Create output files
-touch ${release_prefix}/${evidence_count_file}
-touch ${release_prefix}/${disease_count_file}
+touch $evidence_count_file
+touch $disease_count_file
 
 # Download evidence files
 for datasource in $(gsutil ls gs://open-targets-data-releases/${release_prefix}/input/evidence-files/*gz)
@@ -36,7 +36,7 @@ rm -f gwas*
 for evidence_file in *.json.gz
 do
     gunzip -c $evidence_file > ${evidence_file}.json
-    jq '.sourceID' ${evidence_file}.json | cut -f 1 | sort | uniq -c | tee -a ${release_prefix}/${evidence_count_file}
-    grep "^{" ${evidence_file}.json | jq -r '[.sourceID, .disease.id] | @tsv' | sort -u | cut -f 1 | uniq -c | tee -a ${release_prefix}/${disease_count_file} # Only process lines with JSON objects to avoid issues with first line in progeny file
+    jq '.sourceID' ${evidence_file}.json | cut -f 1 | sort | uniq -c | tee -a $evidence_count_file
+    grep "^{" ${evidence_file}.json | jq -r '[.sourceID, .disease.id] | @tsv' | sort -u | cut -f 1 | uniq -c | tee -a $disease_count_file # Only process lines with JSON objects to avoid issues with first line in progeny file
     rm ${evidence_file}.json
 done
