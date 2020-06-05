@@ -1,20 +1,26 @@
 #!/usr/bin/env bash
 
 # Check that only one argument is passed
-if [[ $# -ne 1 ]]; then
+if [[ $# -ne 3 ]]; then
     echo ""
-    echo "[ERROR] Illegal number of parameters, one release prefix is required. Run as:"
-    echo "> $0 release_prefix"
+    echo "[ERROR] Illegal number of parameters, one release prefix and two file names for the output are required. Run as:"
+    echo "> $0 release_prefix evidence_count.txt disease_count.txt"
     echo ""
     exit 1
 fi
 
 
 release_prefix=$1
+evidence_count_file=$2
+disease_count_file=$3
 
 # Make dir named as the release and work in there
 mkdir -p $release_prefix/evidence_files
 cd $release_prefix/evidence_files
+
+# Create output files
+touch ${release_prefix}/${evidence_count_file}
+touch ${release_prefix}/${disease_count_file}
 
 # Download evidence files
 for datasource in $(gsutil ls gs://open-targets-data-releases/${release_prefix}/input/evidence-files/*gz)
@@ -30,7 +36,7 @@ rm -f gwas*
 for evidence_file in *.json.gz
 do
     gunzip -c $evidence_file > ${evidence_file}.json
-    jq '.sourceID' ${evidence_file}.json | cut -f 1 | sort | uniq -c
-    grep "^{" ${evidence_file}.json | jq -r '[.sourceID, .disease.id] | @tsv' | sort -u | cut -f 1 | uniq -c # Only process lines with JSON objects to avoid issues with first line in progeny file
+    jq '.sourceID' ${evidence_file}.json | cut -f 1 | sort | uniq -c >> ${release_prefix}/${evidence_count_file}
+    grep "^{" ${evidence_file}.json | jq -r '[.sourceID, .disease.id] | @tsv' | sort -u | cut -f 1 | uniq -c >> ${release_prefix}/${disease_count_file} # Only process lines with JSON objects to avoid issues with first line in progeny file
     rm ${evidence_file}.json
 done
