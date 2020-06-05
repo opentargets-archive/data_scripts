@@ -16,4 +16,9 @@ release_prefix=$1
 mkdir -p $release_prefix
 cd $release_prefix
 
-
+# Download evidence files
+for datasource in $(gsutil ls gs://open-targets-data-releases/${release_prefix}/input/evidence-files/*gz)
+do
+    echo "Downloading $datasource"
+    gsutil cp $datasource .
+done
