@@ -30,7 +30,7 @@ rm -f gwas*
 for evidence_file in *.json.gz
 do
     gunzip -c $evidence_file > ${evidence_file}.json
-    wc -l ${evidence_file}.json
+    jq '.sourceID' ${evidence_file}.json | cut -f 1 | sort | uniq -c
     jq -r '[.sourceID, .disease.id] | @tsv' ${evidence_file}.json | sort -u | cut -f 1 | uniq -c
     rm ${evidence_file}.json
 done
