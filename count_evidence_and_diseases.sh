@@ -14,8 +14,8 @@ release_prefix=$1
 evidence_count_file=$2
 disease_count_file=$3
 
-# Make dir named as the release and work in there
-mkdir -p $release_prefix/evidence_files
+# Make dir named as the release, create two subdirectories and work in there
+mkdir -p $release_prefix/evidence_files/tmp
 cd $release_prefix/evidence_files
 
 # Create output files
@@ -36,8 +36,10 @@ rm -f gwas*
 for evidence_file in *.json.gz
 do
     # Only process lines with JSON objects to avoid issues with first line in progeny file
-    gunzip -c $evidence_file | grep "^{" > ${evidence_file}.json
-    jq -r '.sourceID' ${evidence_file}.json | cut -f 1 | sort | uniq -c | tee -a $evidence_count_file
-    jq -r '[.sourceID, .disease.id] | @tsv' ${evidence_file}.json | sort -u | cut -f 1 | uniq -c | tee -a $disease_count_file
-    rm ${evidence_file}.json
+    gunzip -c $evidence_file | grep "^{" > tmp/${evidence_file}.json
+    jq -r '.sourceID' tmp/${evidence_file}.json | cut -f 1 | sort | uniq -c | tee -a $evidence_count_file
+    jq -r '[.sourceID, .disease.id] | @tsv' tmp/${evidence_file}.json | sort -u | cut -f 1 | uniq -c | tee -a $disease_count_file
+    rm tmp/${evidence_file}.json
 done
+
+rm -rf tmp
