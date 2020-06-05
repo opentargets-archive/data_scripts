@@ -35,8 +35,9 @@ rm -f gwas*
 # Iterate through all the files uncompress them, count the rows and the diseases
 for evidence_file in *.json.gz
 do
-    gunzip -c $evidence_file > ${evidence_file}.json
+    # Only process lines with JSON objects to avoid issues with first line in progeny file
+    gunzip -c $evidence_file | grep "^{" > ${evidence_file}.json
     jq -r '.sourceID' ${evidence_file}.json | cut -f 1 | sort | uniq -c | tee -a $evidence_count_file
-    grep "^{" ${evidence_file}.json | jq -r '[.sourceID, .disease.id] | @tsv' | sort -u | cut -f 1 | uniq -c | tee -a $disease_count_file # Only process lines with JSON objects to avoid issues with first line in progeny file
+    jq -r '[.sourceID, .disease.id] | @tsv' ${evidence_file}.json | sort -u | cut -f 1 | uniq -c | tee -a $disease_count_file
     rm ${evidence_file}.json
 done
